@@ -23,6 +23,8 @@
 
 package co.aikar.acfexample;
 
+import co.aikar.commands.ACFBrigadierManager;
+import co.aikar.commands.BukkitCommandDispatcherProvider;
 import co.aikar.commands.BukkitCommandManager;
 import co.aikar.commands.ConditionFailedException;
 import co.aikar.commands.MessageKeys;
@@ -65,9 +67,7 @@ public final class ACFExample extends JavaPlugin {
                 SomeObject.getContextResolver());
 
         // 4: Register Command Completions - this will be accessible with @CommandCompletion("@test")
-        commandManager.getCommandCompletions().registerAsyncCompletion("test", c -> {
-            Arrays.asList("foo", "bar", "baz")
-        });
+        commandManager.getCommandCompletions().registerAsyncCompletion("test", c -> Arrays.asList("foo", "bar", "baz"));
 
         // 5: Register Command Conditions
         commandManager.getCommandConditions().addCondition(SomeObject.class, "limits", (c, exec, value) -> {
@@ -107,6 +107,15 @@ public final class ACFExample extends JavaPlugin {
             getLogger().warning("Error occured while executing command " + command.getName());
             return false; // mark as unhandeled, sender will see default message
         });
+
+        commandManager.enableUnstableAPI("brigadier");
+
+        BukkitCommandDispatcherProvider provider = new BukkitCommandDispatcherProvider();
+        ACFBrigadierManager brigadierManager = new ACFBrigadierManager(commandManager, (com.mojang.brigadier.CommandDispatcher) provider.getCommandDispatcher());
+
+        BrigadierTest test = new BrigadierTest();
+        commandManager.registerCommand(test);
+        brigadierManager.register(test);
     }
 
     // Typical Bukkit Plugin Scaffolding

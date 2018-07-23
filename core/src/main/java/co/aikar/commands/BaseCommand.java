@@ -978,6 +978,10 @@ public abstract class BaseCommand {
         return this.contextFlags.get(cls);
     }
 
+    public SetMultimap<String, RegisteredCommand> getSubCommands(){
+        return subCommands;
+    }
+
     private static class CommandSearch { RegisteredCommand cmd; int argIndex; String checkSub;
 
         CommandSearch(RegisteredCommand cmd, int argIndex, String checkSub) {
