@@ -24,20 +24,25 @@
 package co.aikar.acfexample;
 
 import co.aikar.commands.ACFBrigadierManager;
+import co.aikar.commands.BukkitBrigadierManager;
 import co.aikar.commands.BukkitCommandDispatcherProvider;
 import co.aikar.commands.BukkitCommandManager;
 import co.aikar.commands.ConditionFailedException;
 import co.aikar.commands.MessageKeys;
 import co.aikar.commands.MessageType;
+import com.mojang.brigadier.CommandDispatcher;
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_13_R1.CraftServer;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.Arrays;
 
 public final class ACFExample extends JavaPlugin {
 
     private static ACFExample plugin;
     private static BukkitCommandManager commandManager;
+
     @Override
     public void onEnable() {
         plugin = this;
@@ -56,7 +61,7 @@ public final class ACFExample extends JavaPlugin {
                 // key - value
                 "test", "foobar",
                 // key - demonstrate that % is ignored  - value
-                "%foo",                                  "barbaz");
+                "%foo", "barbaz");
         // Another replacement for piped values
         commandManager.getCommandReplacements().addReplacement("testcmd", "test4|foobar|barbaz");
 
@@ -94,8 +99,8 @@ public final class ACFExample extends JavaPlugin {
 
         // 7: Register your commands - This first command demonstrates adding an exception handler to that command
         commandManager.registerCommand(new SomeCommand().setExceptionHandler((command, registeredCommand, sender, args, t) -> {
-                sender.sendMessage(MessageType.ERROR, MessageKeys.ERROR_GENERIC_LOGGED);
-                return true; // mark as handeled, default message will not be send to sender
+            sender.sendMessage(MessageType.ERROR, MessageKeys.ERROR_GENERIC_LOGGED);
+            return true; // mark as handeled, default message will not be send to sender
         }));
 
         // 8: Register an additional command. This one happens to share the same CommandAlias as the previous command
@@ -117,9 +122,13 @@ public final class ACFExample extends JavaPlugin {
         commandManager.registerCommand(test);
         Bukkit.getScheduler().runTaskLater(this, () -> {
             BukkitCommandDispatcherProvider provider = new BukkitCommandDispatcherProvider();
-            ACFBrigadierManager brigadierManager = new ACFBrigadierManager(commandManager, (com.mojang.brigadier.CommandDispatcher) provider.getCommandDispatcher());
+            ACFBrigadierManager brigadierManager = new BukkitBrigadierManager(commandManager, (com.mojang.brigadier.CommandDispatcher) provider.getCommandDispatcher());
 
             brigadierManager.register(test);
+
+            File file = new File("test.json");
+            ((CraftServer) Bukkit.getServer()).getServer().commandDispatcher.a(file);
+            System.out.println("WROTE TO " + file.getAbsolutePath());
         }, 1);
     }
 
