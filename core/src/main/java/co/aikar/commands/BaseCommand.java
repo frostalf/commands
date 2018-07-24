@@ -978,7 +978,7 @@ public abstract class BaseCommand {
         return this.contextFlags.get(cls);
     }
 
-    public SetMultimap<String, RegisteredCommand> getSubCommands(){
+    /* package private */ SetMultimap<String, RegisteredCommand> getSubCommands(){
         return subCommands;
     }
 
